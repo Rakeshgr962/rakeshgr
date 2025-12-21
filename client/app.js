@@ -3,6 +3,8 @@
 // With Error Handling & Safety Checks
 // ============================================
 
+const API_BASE_URL = 'https://rakeshgr.vercel.app';
+
 console.log('🚀 App.js loading...');
 
 // ===== SAFE INITIALIZATION =====
@@ -153,7 +155,7 @@ function initializeApp() {
         console.error('❌ Typing effect error:', error);
     }
 
-    // ===== CONTACT FORM =====
+    // ===== CONTACT FORM (BACKEND + EMAILJS) =====
     try {
         const contactForm = document.getElementById('contactForm');
         const nameInput = document.getElementById('name');
@@ -260,8 +262,8 @@ function initializeApp() {
         if (subjectInput) subjectInput.addEventListener('blur', validateSubject);
         if (messageInput) messageInput.addEventListener('blur', validateMessage);
 
-        // Form submission
-        contactForm.addEventListener('submit', (e) => {
+        // UPDATED FORM SUBMISSION
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const isNameValid = validateName();
@@ -269,40 +271,79 @@ function initializeApp() {
             const isSubjectValid = validateSubject();
             const isMessageValid = validateMessage();
 
-            if (isNameValid && isEmailValid && isSubjectValid && isMessageValid) {
+            if (!isNameValid || !isEmailValid || !isSubjectValid || !isMessageValid) {
+                return;
+            }
+
+            const submitBtn = contactForm.querySelector('.btn-submit');
+            const originalHTML = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.innerHTML = '⏳ Sending...';
+                submitBtn.disabled = true;
+            }
+
+            const payload = {
+                name: nameInput.value.trim(),
+                email: emailInput.value.trim(),
+                subject: subjectInput.value.trim(),
+                message: messageInput.value.trim()
+            };
+
+            try {
+                // 1) Send to Vercel backend
+                const res = await fetch(`${API_BASE_URL}/api/contact`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (_) {
+                    data = {};
+                }
+
+                if (!res.ok || data.success === false) {
+                    throw new Error(data.error || 'Backend failed');
+                }
+
+                console.log('✅ Backend received message');
+
+                // 2) Send via EmailJS (optional but kept)
                 if (typeof emailjs !== 'undefined') {
                     const templateParams = {
-                        from_name: nameInput.value.trim(),
-                        from_email: emailInput.value.trim(),
-                        subject: subjectInput.value.trim(),
-                        message: messageInput.value.trim(),
+                        from_name: payload.name,
+                        from_email: payload.email,
+                        subject: payload.subject,
+                        message: payload.message,
                         to_email: 'rakeshgr223@gmail.com'
                     };
 
-                    const submitBtn = contactForm.querySelector('.btn-submit');
-                    const originalHTML = submitBtn.innerHTML;
-                    submitBtn.innerHTML = '⏳ Sending...';
-                    submitBtn.disabled = true;
+                    await emailjs.send(
+                        'service_jjza65n',
+                        'template_xha5r4g',
+                        templateParams
+                    );
 
-                    emailjs.send('service_jjza65n', 'template_xha5r4g', templateParams)
-                        .then(() => {
-                            console.log('✅ Email sent');
-                            if (successMessage) {
-                                successMessage.style.display = 'block';
-                                setTimeout(() => { successMessage.style.display = 'none'; }, 5000);
-                            }
-                            contactForm.reset();
-                            charCount.textContent = '0';
-                            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
-                            submitBtn.innerHTML = originalHTML;
-                            submitBtn.disabled = false;
-                        })
-                        .catch(error => {
-                            console.error('❌ Email error:', error);
-                            alert('Failed to send. Please try again.');
-                            submitBtn.innerHTML = originalHTML;
-                            submitBtn.disabled = false;
-                        });
+                    console.log('✅ Email sent via EmailJS');
+                }
+
+                if (successMessage) {
+                    successMessage.style.display = 'block';
+                    setTimeout(() => { successMessage.style.display = 'none'; }, 5000);
+                }
+
+                contactForm.reset();
+                if (charCount) charCount.textContent = '0';
+                document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
+            } catch (error) {
+                console.error('❌ Contact submit error:', error);
+                alert('Failed to send. Please try again.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.innerHTML = originalHTML;
+                    submitBtn.disabled = false;
                 }
             }
         });
