@@ -3,8 +3,8 @@ const cors = require('cors');
 
 const app = express();
 
-// FRONTEND URL (will update after Netlify deploy)
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5500';
+// Allow only your Netlify frontend
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'https://rakeshgr.netlify.app';
 
 app.use(express.json());
 
@@ -30,6 +30,8 @@ app.post('/api/contact', async (req, res) => {
     }
 
     console.log('New contact message:', { name, email, subject, message });
+
+    // Place any email / DB logic here if you add it later
 
     return res.json({ success: true });
   } catch (err) {
