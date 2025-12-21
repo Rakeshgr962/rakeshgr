@@ -1,28 +1,10 @@
 // ============================================
-// RAKESH'S PORTFOLIO - app.js (SAFE VERSION)
-// With Error Handling & Safety Checks
+// RAKESH'S PORTFOLIO - app.js (BACKEND ONLY)
 // ============================================
 
 const API_BASE_URL = 'https://rakeshgr.vercel.app';
 
 console.log('🚀 App.js loading...');
-
-// ===== SAFE INITIALIZATION =====
-try {
-    // ===== EMAILJS CONFIGURATION =====
-    const EMAILJS_SERVICE_ID = 'service_jjza65n';
-    const EMAILJS_TEMPLATE_ID = 'template_xha5r4g';
-    const EMAILJS_PUBLIC_KEY = 'service_v1lhcie';
-
-    if (typeof emailjs !== 'undefined') {
-        emailjs.init(EMAILJS_PUBLIC_KEY);
-        console.log('✅ EmailJS initialized');
-    } else {
-        console.warn('⚠️ EmailJS not loaded');
-    }
-} catch (error) {
-    console.error('❌ EmailJS error:', error);
-}
 
 // ===== RESUME DOWNLOAD FUNCTION =====
 function downloadResume() {
@@ -155,7 +137,7 @@ function initializeApp() {
         console.error('❌ Typing effect error:', error);
     }
 
-    // ===== CONTACT FORM (BACKEND + EMAILJS) =====
+    // ===== CONTACT FORM (BACKEND ONLY) =====
     try {
         const contactForm = document.getElementById('contactForm');
         const nameInput = document.getElementById('name');
@@ -262,7 +244,7 @@ function initializeApp() {
         if (subjectInput) subjectInput.addEventListener('blur', validateSubject);
         if (messageInput) messageInput.addEventListener('blur', validateMessage);
 
-        // UPDATED FORM SUBMISSION
+        // Submit -> send to backend
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -272,6 +254,7 @@ function initializeApp() {
             const isMessageValid = validateMessage();
 
             if (!isNameValid || !isEmailValid || !isSubjectValid || !isMessageValid) {
+                alert('Please fix validation errors before submitting.');
                 return;
             }
 
@@ -290,7 +273,8 @@ function initializeApp() {
             };
 
             try {
-                // 1) Send to Vercel backend
+                console.log('🚀 Sending to backend:', `${API_BASE_URL}/api/contact`, payload);
+
                 const res = await fetch(`${API_BASE_URL}/api/contact`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -304,29 +288,10 @@ function initializeApp() {
                     data = {};
                 }
 
+                console.log('✅ Backend response:', res.status, data);
+
                 if (!res.ok || data.success === false) {
-                    throw new Error(data.error || 'Backend failed');
-                }
-
-                console.log('✅ Backend received message');
-
-                // 2) Send via EmailJS (optional but kept)
-                if (typeof emailjs !== 'undefined') {
-                    const templateParams = {
-                        from_name: payload.name,
-                        from_email: payload.email,
-                        subject: payload.subject,
-                        message: payload.message,
-                        to_email: 'rakeshgr223@gmail.com'
-                    };
-
-                    await emailjs.send(
-                        'service_jjza65n',
-                        'template_xha5r4g',
-                        templateParams
-                    );
-
-                    console.log('✅ Email sent via EmailJS');
+                    throw new Error(data.error || 'Failed to send');
                 }
 
                 if (successMessage) {
@@ -438,3 +403,4 @@ if (document.readyState === 'loading') {
 }
 
 console.log('✅ App.js fully loaded');
+
