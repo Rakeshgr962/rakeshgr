@@ -4,7 +4,7 @@ const cors = require('cors');
 const app = express();
 
 // Allow only your Netlify frontend
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'https://rakeshgr.netlify.app';
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'https://rakeshgr18.vercel.app';
 
 app.use(express.json());
 
@@ -41,3 +41,4 @@ app.post('/api/contact', async (req, res) => {
 });
 
 module.exports = app;
+
