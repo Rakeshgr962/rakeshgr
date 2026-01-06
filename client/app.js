@@ -2,7 +2,7 @@
 // RAKESH'S PORTFOLIO - app.js (BACKEND ONLY)
 // ============================================
 
-const API_BASE_URL = 'https://rakeshgr18.vercel.app';
+const API_BASE_URL = 'https://rakeshgr.vercel.app';
 
 console.log('🚀 App.js loading...');
 
