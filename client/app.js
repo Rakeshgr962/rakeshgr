@@ -26,7 +26,6 @@ function downloadResume() {
 function initializeApp() {
     try {
         console.log('🔧 Initializing app...');
-
         // ===== NAVBAR & NAVIGATION =====
         const navbar = document.getElementById('navbar');
         const navLinks = document.querySelectorAll('.nav-link');
