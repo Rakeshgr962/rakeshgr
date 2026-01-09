@@ -378,7 +378,7 @@ function initializeApp() {
                 downloadResume();
             });
         }
-
+        
         if (aboutResumeBtn) {
             aboutResumeBtn.addEventListener('click', (e) => {
                 e.preventDefault();
