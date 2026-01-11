@@ -14,7 +14,6 @@ app.use(
     methods: ['GET', 'POST'],
   })
 );
-
 // Health check
 app.get('/', (req, res) => {
   res.json({ activeStatus: true, error: false });
@@ -41,6 +40,7 @@ app.post('/api/contact', async (req, res) => {
 });
 
 module.exports = app;
+
 
 
 
