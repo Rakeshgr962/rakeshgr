@@ -21,7 +21,6 @@ function downloadResume() {
         window.open('assets/resume/Rakesh_GR_Resume.pdf', '_blank');
     }
 }
-
 // ===== WAIT FOR DOM TO BE READY =====
 function initializeApp() {
     try {
